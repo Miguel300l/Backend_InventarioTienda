@@ -1,0 +1,86 @@
+import Compra from '../models/Compra.js';
+import Producto from '../models/Producto.js';
+import Proveedor from '../models/Proveedor.js';
+
+export const obtenerCompras = async (req, res, next) => {
+    try {
+        const compras = await Compra.find()
+            .populate("id_producto")
+            .populate("id_proveedor");
+
+        res.json(compras);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const obtenerCompraPorId = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const compra = await Compra.findById(id)
+            .populate("id_producto")
+            .populate("id_proveedor");
+
+        if (!compra) {
+            res.status(404);
+            throw new Error("Compra no encontrada");
+        }
+
+        res.json(compra);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const registrarCompra = async (req, res, next) => {
+    try {
+        const { id_producto, id_proveedor, cantidad, precio_compra } = req.body;
+
+        // Validaciones básicas
+        if (!id_producto || !id_proveedor || !cantidad || !precio_compra) {
+            res.status(400);
+            throw new Error('Todos los campos son obligatorios');
+        }
+
+        // Validar valores positivos
+        if (cantidad <= 0 || precio_compra <= 0) {
+            res.status(400);
+            throw new Error('Cantidad y precio deben ser mayores a 0');
+        }
+
+        // 1. Verificar producto
+        const productoExiste = await Producto.findById(id_producto);
+        if (!productoExiste) {
+            res.status(404);
+            throw new Error('Producto no encontrado');
+        }
+
+        // 2. Verificar proveedor 🔥
+        const proveedorExiste = await Proveedor.findById(id_proveedor);
+        if (!proveedorExiste) {
+            res.status(404);
+            throw new Error('Proveedor no encontrado');
+        }
+
+        // 3. Calcular costo total
+        const costo_total = cantidad * precio_compra;
+
+        // 4. Registrar compra
+        const compra = await Compra.create({
+            id_producto,
+            id_proveedor,
+            cantidad,
+            precio_compra,
+            costo_total
+        });
+
+        // 5. Aumentar stock
+        productoExiste.stock += cantidad;
+        await productoExiste.save();
+
+        res.status(201).json(compra);
+    } catch (error) {
+        next(error);
+    }
+};
