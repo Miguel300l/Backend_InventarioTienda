@@ -37,13 +37,11 @@ export const registrarVenta = async (req, res, next) => {
 
         const { id_producto, cantidad, precio_venta } = req.body;
 
-        // Validación básica
         if (!id_producto || !cantidad || !precio_venta) {
             res.status(400);
             throw new Error("Todos los campos son obligatorios");
         }
 
-        // 1. Buscar producto
         const producto = await Producto.findById(id_producto);
 
         if (!producto) {
@@ -51,16 +49,13 @@ export const registrarVenta = async (req, res, next) => {
             throw new Error('Producto no encontrado');
         }
 
-        // 2. Validar stock
         if (producto.stock < cantidad) {
             res.status(400);
             throw new Error(`Stock insuficiente. Stock actual: ${producto.stock}`);
         }
 
-        // 3. Calcular total
         const precio_total = cantidad * precio_venta;
 
-        // 4. Usuario desde middleware
         const id_usuario = req.user?._id;
 
         if (!id_usuario) {
@@ -69,7 +64,6 @@ export const registrarVenta = async (req, res, next) => {
             });
         }
 
-        // 5. Crear venta
         const venta = await Venta.create({
             id_producto,
             id_usuario,
@@ -78,7 +72,6 @@ export const registrarVenta = async (req, res, next) => {
             precio_total
         });
 
-        // 6. Descontar stock
         producto.stock -= cantidad;
         await producto.save();
 

@@ -37,36 +37,30 @@ export const registrarCompra = async (req, res, next) => {
     try {
         const { id_producto, id_proveedor, cantidad, precio_compra } = req.body;
 
-        // Validaciones básicas
         if (!id_producto || !id_proveedor || !cantidad || !precio_compra) {
             res.status(400);
             throw new Error('Todos los campos son obligatorios');
         }
 
-        // Validar valores positivos
         if (cantidad <= 0 || precio_compra <= 0) {
             res.status(400);
             throw new Error('Cantidad y precio deben ser mayores a 0');
         }
 
-        // 1. Verificar producto
         const productoExiste = await Producto.findById(id_producto);
         if (!productoExiste) {
             res.status(404);
             throw new Error('Producto no encontrado');
         }
 
-        // 2. Verificar proveedor 🔥
         const proveedorExiste = await Proveedor.findById(id_proveedor);
         if (!proveedorExiste) {
             res.status(404);
             throw new Error('Proveedor no encontrado');
         }
 
-        // 3. Calcular costo total
         const costo_total = cantidad * precio_compra;
 
-        // 4. Registrar compra
         const compra = await Compra.create({
             id_producto,
             id_proveedor,
@@ -75,7 +69,6 @@ export const registrarCompra = async (req, res, next) => {
             costo_total
         });
 
-        // 5. Aumentar stock
         productoExiste.stock += cantidad;
         await productoExiste.save();
 

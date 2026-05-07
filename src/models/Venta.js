@@ -20,7 +20,7 @@ const ventaSchema = new Schema(
         precio_venta: {
             type: Number,
             required: true
-        }, // precio final de venta
+        },
         precio_total: {
             type: Number,
             required: true

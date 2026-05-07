@@ -30,16 +30,13 @@ export const obtenerProductoPorId = async (req, res, next) => {
 export const crearProducto = async (req, res, next) => {
 
     try {
-        console.log("BODY RECIBIDO:", req.body);
         const { nombre, codigo, descripcion, precioVenta } = req.body;
 
-        // Validaciones básicas
         if (!nombre || !codigo || !precioVenta) {
             res.status(400);
             throw new Error('Nombre, código y precio de venta son obligatorios');
         }
 
-        // Validar stock mínimo
         const stockMinimo = req.body.stockMinimo ?? 5;
 
         if (stockMinimo < 0) {
@@ -47,7 +44,6 @@ export const crearProducto = async (req, res, next) => {
             throw new Error("El stock mínimo no puede ser negativo");
         }
 
-        // Validar duplicado de código
         const productoExistente = await Producto.findOne({ codigo });
         if (productoExistente) {
             res.status(400);
@@ -85,7 +81,6 @@ export const actualizarProducto = async (req, res, next) => {
             throw new Error("El stock mínimo no puede ser negativo");
         }
 
-        // Validar si cambia código y evitar duplicados
         if (codigo && codigo !== producto.codigo) {
             const existe = await Producto.findOne({ codigo });
             if (existe) {

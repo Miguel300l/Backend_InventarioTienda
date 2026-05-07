@@ -31,7 +31,6 @@ export const crearProveedor = async (req, res, next) => {
     try {
         const { nombre, correo, telefono } = req.body;
 
-        // Validar duplicado por correo (opcional)
         if (correo) {
             const proveedorExistente = await Proveedor.findOne({ correo });
             if (proveedorExistente) {
