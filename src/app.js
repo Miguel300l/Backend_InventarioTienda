@@ -15,12 +15,13 @@ createRoles();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-app.use(errorHandler);
 
 app.use("/api/auth", authRoutes)
 app.use("/api/proveedores", proveedorRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/compras", compraRoutes);
 app.use("/api/ventas", ventaRoutes);
+
+app.use(errorHandler);
 
 export default app;
