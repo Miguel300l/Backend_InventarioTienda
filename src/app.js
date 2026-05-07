@@ -7,6 +7,7 @@ import compraRoutes from "./routes/compra.routes.js";
 import ventaRoutes from "./routes/venta.routes.js";
 import cookieParser from "cookie-parser";
 import { createRoles } from "./config/initialRoles.js"
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 createRoles();
@@ -14,6 +15,7 @@ createRoles();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+app.use(errorHandler);
 
 app.use("/api/auth", authRoutes)
 app.use("/api/proveedores", proveedorRoutes);
