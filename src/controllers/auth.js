@@ -109,6 +109,7 @@ export const signin = async (req, res) => {
             user: {
                 id: userFound._id,
                 nombre: userFound.nombre,
+                correo: userFound.correo,
                 rol: userFound.rol
             }
         });
