@@ -9,6 +9,7 @@ const router = Router();
 router.post("/signup", checkUserExists, validarCamposRegistro, authController.signUp);
 
 router.post("/signin", validarCamposAuch, authController.signin);
+router.post("/logout", authController.logout);
 
 router.post("/registerEstilista", checkUserExists, validarCamposRegistroEstilista, authController.registerEstilista);
 

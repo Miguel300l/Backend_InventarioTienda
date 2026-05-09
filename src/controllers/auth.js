@@ -121,6 +121,33 @@ export const signin = async (req, res) => {
     }
 };
 
+export const logout = async (req, res) => {
+    try {
+
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        });
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        });
+
+        return res.json({
+            message: "Sesión cerrada correctamente"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Error al cerrar sesión",
+            error: error.message
+        });
+    }
+};
+
 export const registerEstilista = async (req, res) => {
     const { nombre, correo, password, celular, especialidad } = req.body;
 
