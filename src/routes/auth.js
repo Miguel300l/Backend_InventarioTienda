@@ -12,6 +12,7 @@ router.post("/signin", validarCamposAuch, authController.signin);
 router.post("/logout", authController.logout);
 
 router.post("/registerEstilista", checkUserExists, validarCamposRegistroEstilista, authController.registerEstilista);
+router.get("/me", verificarToken, authController.me);
 
 export default router;
 

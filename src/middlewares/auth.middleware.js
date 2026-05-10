@@ -25,7 +25,19 @@ export const verificarToken = async (req, res, next) => {
                 return next();
 
             } catch (error) {
-                console.log("Access token expirado");
+
+                if (
+                    error.name !== "TokenExpiredError"
+                ) {
+
+                    return res.status(401).json({
+                        message: "Token inválido"
+                    });
+                }
+
+                console.log(
+                    "Access token expirado"
+                );
             }
         }
 
@@ -51,9 +63,30 @@ export const verificarToken = async (req, res, next) => {
             });
         }
 
-        const newAccessToken = createAccessToken({
-            id: usuario._id
-        });
+        if (
+            usuario.refreshToken !== refreshToken
+        ) {
+
+            return res.status(401).json({
+                message:
+                    "Refresh token inválido"
+            });
+        }
+
+        const newAccessToken =
+            createAccessToken({
+                id: usuario._id
+            });
+
+        const newRefreshToken =
+            createRefreshToken({
+                id: usuario._id
+            });
+
+        usuario.refreshToken =
+            newRefreshToken;
+
+        await usuario.save();
 
         res.cookie("token", newAccessToken, {
             httpOnly: true,
@@ -61,6 +94,22 @@ export const verificarToken = async (req, res, next) => {
             sameSite: "none",
             maxAge: 15 * 60 * 1000
         });
+
+        res.cookie(
+            "refreshToken",
+            newRefreshToken,
+            {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                maxAge:
+                    7 *
+                    24 *
+                    60 *
+                    60 *
+                    1000
+            }
+        );
 
         req.user = usuario;
         next();

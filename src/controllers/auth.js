@@ -125,6 +125,30 @@ export const signin = async (req, res) => {
 export const logout = async (req, res) => {
     try {
 
+        const refreshToken =
+            req.cookies.refreshToken;
+
+        if (refreshToken) {
+
+            try {
+
+                const decoded = jwt.verify(
+                    refreshToken,
+                    process.env.JWT_REFRESH_SECRET
+                );
+
+                await Usuario.findByIdAndUpdate(
+                    decoded.id,
+                    {
+                        refreshToken: null
+                    }
+                );
+
+            } catch (error) {
+                console.log("Refresh token inválido");
+            }
+        }
+
         res.clearCookie("token", {
             httpOnly: true,
             secure: true,
@@ -183,6 +207,27 @@ export const registerEstilista = async (req, res) => {
         return res.status(500).json({
             message: "Error en registro de estilista",
             error: error.message
+        });
+    }
+};
+
+export const me = async (req, res) => {
+
+    try {
+
+        return res.json({
+            user: {
+                id: req.user._id,
+                nombre: req.user.nombre,
+                correo: req.user.correo,
+                rol: req.user.rol
+            }
+        });
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Error obteniendo usuario"
         });
     }
 };

@@ -38,6 +38,11 @@ const usuarioSchema = new Schema(
             default: null
         },
 
+        refreshToken: {
+            type: String,
+            default: null
+        }
+
     },
     {
         timestamps: true,
