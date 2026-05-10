@@ -39,7 +39,7 @@ export const verificarToken = async (req, res, next) => {
 
         res.cookie("token", newAccessToken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: "none",
             maxAge: 15 * 60 * 1000
         });
