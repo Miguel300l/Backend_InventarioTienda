@@ -15,7 +15,10 @@ const app = express();
 createRoles();
 
 app.use(cors({
-    origin: "https://inventario-tienda.vercel.app",
+    origin: [
+        "https://inventario-tienda.vercel.app",
+        "http://localhost:5173"
+    ],
     credentials: true
 }));
 app.use(express.json());
