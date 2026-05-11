@@ -6,6 +6,7 @@ import productoRoutes from "./routes/producto.routes.js";
 import compraRoutes from "./routes/compra.routes.js";
 import ventaRoutes from "./routes/venta.routes.js";
 import movimientoRoutes from "./routes/movimiento.routes.js";
+import reportes from "./routes/reportes.routes.js";
 import cookieParser from "cookie-parser";
 import { createRoles } from "./config/initialRoles.js"
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -26,6 +27,7 @@ app.use("/api/productos", productoRoutes);
 app.use("/api/compras", compraRoutes);
 app.use("/api/ventas", ventaRoutes);
 app.use("/api/movimientos", movimientoRoutes);
+app.use("/api/reportes", reportes);
 
 app.use(errorHandler);
 
