@@ -11,10 +11,13 @@ export const obtenerMovimientos = async (req, res, next) => {
             throw new Error("Las fechas desde y hasta son obligatorias");
         }
 
-        const fechaInicio = new Date(desde);
-        const fechaFin = new Date(hasta);
+        const fechaInicio = new Date(
+            `${desde}T00:00:00`
+        );
 
-        fechaFin.setHours(23, 59, 59, 999);
+        const fechaFin = new Date(
+            `${hasta}T23:59:59.999`
+        );
 
         let movimientos = [];
 
@@ -31,7 +34,7 @@ export const obtenerMovimientos = async (req, res, next) => {
                 .populate("id_usuario", "nombre email")
                 .sort({ createdAt: -1 });
 
-            const ventasFormateadas = ventas.map(v => ({
+            const ventasFormateadas = ventas.map((v) => ({
                 tipo: "venta",
                 id: v._id,
                 producto: v.id_producto?.nombre,
@@ -58,7 +61,7 @@ export const obtenerMovimientos = async (req, res, next) => {
                 .populate("id_proveedor", "nombre")
                 .sort({ createdAt: -1 });
 
-            const comprasFormateadas = compras.map(c => ({
+            const comprasFormateadas = compras.map((c) => ({
                 tipo: "compra",
                 id: c._id,
                 producto: c.id_producto?.nombre,
