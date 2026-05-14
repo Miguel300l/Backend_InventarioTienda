@@ -2,7 +2,9 @@ import Producto from '../models/Producto.js';
 
 export const obtenerProductos = async (req, res, next) => {
     try {
-        const productos = await Producto.find();
+
+        const productos = await Producto.find()
+            .populate("proveedor", "nombre");
 
         res.json(productos);
     } catch (error) {
