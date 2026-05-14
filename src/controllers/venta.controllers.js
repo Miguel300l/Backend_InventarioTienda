@@ -16,8 +16,11 @@ export const obtenerVentas = async (req, res, next) => {
                 $lte: finDia,
             },
         })
-            .populate("id_producto")
-            .populate("id_usuario");
+            .populate("id_producto", "nombre codigo")
+            .populate("id_usuario", "nombre")
+            .select(
+                "id_producto id_usuario cantidad precio_venta precio_total fecha"
+            );
 
         res.json(ventas);
     } catch (error) {

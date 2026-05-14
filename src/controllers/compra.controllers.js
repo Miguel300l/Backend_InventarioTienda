@@ -17,8 +17,11 @@ export const obtenerCompras = async (req, res, next) => {
                 $lte: finDia,
             },
         })
-            .populate("id_producto")
-            .populate("id_proveedor");
+            .populate("id_producto", "nombre codigo")
+            .populate("id_proveedor", "nombre")
+            .select(
+                "id_producto id_proveedor cantidad precio_compra costo_total fecha"
+            );
 
         res.json(compras);
     } catch (error) {
