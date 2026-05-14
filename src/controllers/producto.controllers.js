@@ -32,9 +32,9 @@ export const obtenerProductoPorId = async (req, res, next) => {
 export const crearProducto = async (req, res, next) => {
 
     try {
-        const { nombre, codigo, descripcion, proveedor, } = req.body;
+        const { nombre, codigo, descripcion, proveedor, stock } = req.body;
 
-        if (!nombre || !codigo || !proveedor || !descripcion) {
+        if (!nombre || !codigo || !proveedor || !descripcion || !stock) {
             res.status(400);
             throw new Error('Todos los datos son obligatorios');
         }
@@ -57,7 +57,7 @@ export const crearProducto = async (req, res, next) => {
             codigo,
             descripcion,
             stockMinimo,
-            stock: 0,
+            stock,
             proveedor,
         });
 
