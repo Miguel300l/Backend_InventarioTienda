@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
+dotenv.config();
+process.env.TZ = process.env.APP_TIMEZONE || "America/Bogota";
+
 import app from "./src/app.js";
 import { connectDB } from "./src/config/dbClient.js";
 
-dotenv.config();
 connectDB();
 
 const PORT = process.env.PORT || 3000;
