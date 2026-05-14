@@ -14,14 +14,6 @@ const productoSchema = new Schema(
         descripcion: {
             type: String
         },
-        precioVenta: {
-            type: Number,
-            required: true
-        },
-        stock: {
-            type: Number,
-            default: 0
-        },
         stockMinimo: {
             type: Number,
         },
