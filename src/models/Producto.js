@@ -24,7 +24,12 @@ const productoSchema = new Schema(
         },
         stockMinimo: {
             type: Number,
-        }
+        },
+        proveedor: {
+            type: Schema.Types.ObjectId,
+            ref: "Proveedor",
+            required: true,
+        },
     },
     {
         timestamps: true,

@@ -30,11 +30,11 @@ export const obtenerProductoPorId = async (req, res, next) => {
 export const crearProducto = async (req, res, next) => {
 
     try {
-        const { nombre, codigo, descripcion, precioVenta } = req.body;
+        const { nombre, codigo, descripcion, precioVenta, proveedor, } = req.body;
 
-        if (!nombre || !codigo || !precioVenta) {
+        if (!nombre || !codigo || !precioVenta || !proveedor || !descripcion) {
             res.status(400);
-            throw new Error('Nombre, código y precio de venta son obligatorios');
+            throw new Error('Todos los datos son obligatorios');
         }
 
         const stockMinimo = req.body.stockMinimo ?? 5;
@@ -56,7 +56,8 @@ export const crearProducto = async (req, res, next) => {
             descripcion,
             precioVenta,
             stockMinimo,
-            stock: 0
+            stock: 0,
+            proveedor,
         });
 
         res.status(201).json(producto);
