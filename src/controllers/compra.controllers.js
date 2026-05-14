@@ -5,11 +5,21 @@ import Proveedor from '../models/Proveedor.js';
 export const obtenerCompras = async (req, res, next) => {
     try {
 
-        const inicioDia = new Date();
-        inicioDia.setHours(0, 0, 0, 0);
+        const hoy = new Date();
 
-        const finDia = new Date();
-        finDia.setHours(23, 59, 59, 999);
+        const inicioDia = new Date(
+            hoy.getFullYear(),
+            hoy.getMonth(),
+            hoy.getDate(),
+            0, 0, 0, 0
+        );
+
+        const finDia = new Date(
+            hoy.getFullYear(),
+            hoy.getMonth(),
+            hoy.getDate(),
+            23, 59, 59, 999
+        );
 
         const compras = await Compra.find({
             fecha: {
