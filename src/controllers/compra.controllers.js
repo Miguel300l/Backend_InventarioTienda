@@ -4,7 +4,19 @@ import Proveedor from '../models/Proveedor.js';
 
 export const obtenerCompras = async (req, res, next) => {
     try {
-        const compras = await Compra.find()
+
+        const inicioDia = new Date();
+        inicioDia.setHours(0, 0, 0, 0);
+
+        const finDia = new Date();
+        finDia.setHours(23, 59, 59, 999);
+
+        const compras = await Compra.find({
+            fecha: {
+                $gte: inicioDia,
+                $lte: finDia,
+            },
+        })
             .populate("id_producto")
             .populate("id_proveedor");
 

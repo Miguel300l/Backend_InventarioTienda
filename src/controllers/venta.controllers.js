@@ -3,7 +3,19 @@ import Producto from '../models/Producto.js';
 
 export const obtenerVentas = async (req, res, next) => {
     try {
-        const ventas = await Venta.find()
+
+        const inicioDia = new Date();
+        inicioDia.setHours(0, 0, 0, 0);
+
+        const finDia = new Date();
+        finDia.setHours(23, 59, 59, 999);
+
+        const ventas = await Venta.find({
+            fecha: {
+                $gte: inicioDia,
+                $lte: finDia,
+            },
+        })
             .populate("id_producto")
             .populate("id_usuario");
 
