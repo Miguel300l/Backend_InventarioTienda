@@ -1,4 +1,5 @@
 import Producto from '../models/Producto.js';
+import Compra from "../models/Compra.js";
 
 export const obtenerProductos = async (req, res, next) => {
     try {
@@ -6,7 +7,36 @@ export const obtenerProductos = async (req, res, next) => {
         const productos = await Producto.find()
             .populate("proveedor", "nombre");
 
-        res.json(productos);
+        const productosConPromedio = await Promise.all(
+            productos.map(async (producto) => {
+
+                const compras = await Compra.find({
+                    id_producto: producto._id,
+                });
+
+                let promedioCompra = 0;
+
+                if (compras.length > 0) {
+
+                    const totalPrecios = compras.reduce(
+                        (acc, compra) => acc + compra.precio_compra,
+                        0
+                    );
+
+                    promedioCompra = totalPrecios / compras.length;
+                }
+
+                return {
+                    ...producto.toObject(),
+                    precio_compra_promedio: Number(
+                        promedioCompra.toFixed(2)
+                    ),
+                };
+            })
+        );
+
+        res.json(productosConPromedio);
+
     } catch (error) {
         next(error);
     }
