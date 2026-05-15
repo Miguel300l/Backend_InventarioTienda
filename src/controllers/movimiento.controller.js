@@ -1,5 +1,6 @@
 import Venta from "../models/Venta.js";
 import Compra from "../models/Compra.js";
+import Producto from "../models/Producto.js";
 
 export const obtenerMovimientos = async (req, res, next) => {
     try {
@@ -84,5 +85,38 @@ export const obtenerMovimientos = async (req, res, next) => {
 
     } catch (error) {
         next(error);
+    }
+};
+
+
+export const obtenerStockProductos = async (req, res) => {
+    try {
+        const productos = await Producto.find();
+
+        const resultado = productos.map((p) => {
+            let estado = "verde";
+
+            if (p.stock <= p.stockMinimo) {
+                estado = "rojo";
+            } else if (p.stock <= p.stockMinimo * 1.5) {
+                estado = "amarillo";
+            }
+
+            return {
+                id: p._id,
+                nombre: p.nombre,
+                codigo: p.codigo,
+                stock_actual: p.stock,
+                stock_minimo: p.stockMinimo,
+                estado,
+            };
+        });
+
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({
+            message: "Error al obtener stock",
+            error: error.message,
+        });
     }
 };
