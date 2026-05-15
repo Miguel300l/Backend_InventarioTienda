@@ -134,3 +134,85 @@ export const productosMasVendidos = async (req, res) => {
         });
     }
 };
+
+export const ventasPorMes = async (
+    req,
+    res
+) => {
+
+    try {
+
+        const year =
+            Number(req.query.year) ||
+            new Date().getFullYear();
+
+        const inicio =
+            new Date(year, 0, 1);
+
+        const fin =
+            new Date(year + 1, 0, 1);
+
+        const ventas =
+            await Venta.aggregate([
+
+                {
+                    $match: {
+                        fecha: {
+                            $gte: inicio,
+                            $lt: fin
+                        }
+                    }
+                },
+
+                {
+                    $group: {
+                        _id: {
+                            mes: {
+                                $month:
+                                    "$fecha"
+                            },
+
+                            year: {
+                                $year:
+                                    "$fecha"
+                            }
+                        },
+
+                        totalVentas: {
+                            $sum:
+                                "$cantidad"
+                        }
+                    }
+                },
+
+                {
+                    $sort: {
+                        "_id.mes": 1
+                    }
+                }
+
+            ]);
+
+        const meses =
+            Array(12).fill(0);
+
+        ventas.forEach((v) => {
+
+            meses[
+                v._id.mes - 1
+            ] = v.totalVentas;
+        });
+
+        res.json({
+            year,
+            ventas: meses
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message:
+                "Error obteniendo ventas"
+        });
+    }
+};

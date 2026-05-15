@@ -3,7 +3,8 @@ import {
     registrarVenta,
     obtenerVentas,
     obtenerVentaPorId,
-    productosMasVendidos
+    productosMasVendidos,
+    ventasPorMes
 } from "../controllers/venta.controllers.js";
 import { verificarToken } from "../middlewares/auth.middleware.js";
 
@@ -14,6 +15,8 @@ router.post("/", verificarToken, registrarVenta);
 router.get("/", obtenerVentas);
 
 router.get("/productos-mas-vendidos", productosMasVendidos);
+
+router.get("/ventas-por-mes", ventasPorMes);
 
 router.get("/:id", obtenerVentaPorId);
 
