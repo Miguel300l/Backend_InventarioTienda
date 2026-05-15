@@ -1,4 +1,5 @@
 import Venta from '../models/Venta.js';
+import Compra from "../models/Compra.js";
 import Producto from '../models/Producto.js';
 
 export const obtenerVentas = async (req, res, next) => {
@@ -213,6 +214,113 @@ export const ventasPorMes = async (
         res.status(500).json({
             message:
                 "Error obteniendo ventas"
+        });
+    }
+};
+
+export const estadisticasMensuales = async (req, res) => {
+
+    try {
+
+        const year =
+            Number(req.query.year) ||
+            new Date().getFullYear();
+
+        const inicio =
+            new Date(year, 0, 1);
+
+        const fin =
+            new Date(year + 1, 0, 1);
+
+        // VENTAS
+        const ventas =
+            await Venta.aggregate([
+
+                {
+                    $match: {
+                        fecha: {
+                            $gte: inicio,
+                            $lt: fin
+                        }
+                    }
+                },
+
+                {
+                    $group: {
+                        _id: {
+                            mes: {
+                                $month: "$fecha"
+                            }
+                        },
+
+                        total: {
+                            $sum: "$cantidad"
+                        }
+                    }
+                }
+
+            ]);
+
+        // COMPRAS
+        const compras =
+            await Compra.aggregate([
+
+                {
+                    $match: {
+                        fecha: {
+                            $gte: inicio,
+                            $lt: fin
+                        }
+                    }
+                },
+
+                {
+                    $group: {
+                        _id: {
+                            mes: {
+                                $month: "$fecha"
+                            }
+                        },
+
+                        total: {
+                            $sum: "$cantidad"
+                        }
+                    }
+                }
+
+            ]);
+
+        const ventasMeses =
+            Array(12).fill(0);
+
+        const comprasMeses =
+            Array(12).fill(0);
+
+        ventas.forEach((v) => {
+
+            ventasMeses[
+                v._id.mes - 1
+            ] = v.total;
+        });
+
+        compras.forEach((c) => {
+
+            comprasMeses[
+                c._id.mes - 1
+            ] = c.total;
+        });
+
+        res.json({
+            year,
+            ventas: ventasMeses,
+            compras: comprasMeses
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message:
+                "Error obteniendo estadísticas"
         });
     }
 };
