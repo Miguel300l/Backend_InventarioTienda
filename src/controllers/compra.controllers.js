@@ -102,3 +102,65 @@ export const registrarCompra = async (req, res, next) => {
         next(error);
     }
 };
+
+export const productosMasComprados =
+    async (req, res) => {
+
+        try {
+
+            const result =
+                await Compra.aggregate([
+
+                    {
+                        $group: {
+                            _id: "$id_producto",
+
+                            totalComprado: {
+                                $sum: "$cantidad"
+                            }
+                        }
+                    },
+
+                    {
+                        $lookup: {
+                            from: "productos",
+
+                            localField: "_id",
+
+                            foreignField: "_id",
+
+                            as: "producto"
+                        }
+                    },
+
+                    {
+                        $unwind: "$producto"
+                    },
+
+                    {
+                        $sort: {
+                            totalComprado: -1
+                        }
+                    }
+
+                ]);
+
+            res.json({
+
+                masComprado:
+                    result[0],
+
+                menosComprado:
+                    result[
+                    result.length - 1
+                    ]
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                message:
+                    "Error obteniendo compras"
+            });
+        }
+    };
