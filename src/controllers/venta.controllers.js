@@ -96,3 +96,41 @@ export const registrarVenta = async (req, res, next) => {
         next(error);
     }
 };
+
+export const productosMasVendidos = async (req, res) => {
+    try {
+        const result = await Venta.aggregate([
+            {
+                $group: {
+                    _id: "$id_producto",
+                    totalVendido: { $sum: "$cantidad" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "productos",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "producto"
+                }
+            },
+            { $unwind: "$producto" },
+            {
+                $sort: { totalVendido: -1 }
+            }
+        ]);
+
+        const masVendido = result[0];
+        const menosVendido = result[result.length - 1];
+
+        res.json({
+            masVendido,
+            menosVendido
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error generando reporte"
+        });
+    }
+};
