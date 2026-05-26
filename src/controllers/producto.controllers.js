@@ -26,11 +26,18 @@ export const obtenerProductos = async (req, res, next) => {
                     promedioCompra = totalPrecios / compras.length;
                 }
 
+                const precioCompraPromedio = Number(
+                    promedioCompra.toFixed(2)
+                );
+
+                const precioVentaPromedio = Number(
+                    (precioCompraPromedio / 0.80).toFixed(2)
+                );
+
                 return {
                     ...producto.toObject(),
-                    precio_compra_promedio: Number(
-                        promedioCompra.toFixed(2)
-                    ),
+                    precio_compra_promedio: precioCompraPromedio,
+                    precio_venta_promedio: precioVentaPromedio,
                 };
             })
         );
