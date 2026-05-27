@@ -23,6 +23,11 @@ export const signUp = async (req, res) => {
         const accessToken = createAccessToken({ id: savedUser._id });
         const refreshToken = createRefreshToken({ id: savedUser._id });
 
+        savedUser.refreshToken =
+            refreshToken;
+
+        await savedUser.save();
+
         res.cookie("token", accessToken, {
             httpOnly: true,
             secure: true,
@@ -89,6 +94,10 @@ export const signin = async (req, res) => {
 
         const accessToken = createAccessToken({ id: userFound._id });
         const refreshToken = createRefreshToken({ id: userFound._id });
+
+        userFound.refreshToken = refreshToken;
+
+        await userFound.save();
 
         res.cookie("token", accessToken, {
             httpOnly: true,

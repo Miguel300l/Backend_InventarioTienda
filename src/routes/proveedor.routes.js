@@ -6,13 +6,14 @@ import {
     actualizarProveedor,
     eliminarProveedor
 } from "../controllers/proveedor.controllers.js";
+import { csrfProtection } from "../middlewares/csrf.middleware.js";
 
 const router = Router();
 
 router.get("/", obtenerProveedores);
 router.get("/:id", obtenerProveedorPorId);
-router.post("/", crearProveedor);
-router.put("/:id", actualizarProveedor);
-router.delete("/:id", eliminarProveedor);
+router.post("/", csrfProtection, crearProveedor);
+router.put("/:id", csrfProtection, actualizarProveedor);
+router.delete("/:id", csrfProtection, eliminarProveedor);
 
 export default router;

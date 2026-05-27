@@ -8,10 +8,11 @@ import {
     estadisticasMensuales
 } from "../controllers/venta.controllers.js";
 import { verificarToken } from "../middlewares/auth.middleware.js";
+import { csrfProtection } from "../middlewares/csrf.middleware.js";
 
 const router = Router();
 
-router.post("/", verificarToken, registrarVenta);
+router.post("/", csrfProtection, verificarToken, registrarVenta);
 
 router.get("/", obtenerVentas);
 

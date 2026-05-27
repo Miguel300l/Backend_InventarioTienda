@@ -5,10 +5,11 @@ import {
     obtenerCompraPorId,
     productosMasComprados
 } from "../controllers/compra.controllers.js";
+import { csrfProtection } from "../middlewares/csrf.middleware.js";
 
 const router = Router();
 
-router.post("/", registrarCompra);
+router.post("/", csrfProtection, registrarCompra);
 
 router.get("/", obtenerCompras);
 
