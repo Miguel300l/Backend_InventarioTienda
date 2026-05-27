@@ -16,9 +16,9 @@ export const verificarToken = async (req, res, next) => {
                     .populate("rol");
 
                 if (!usuario) {
-                    return res.status(404).json({
-                        message: "Usuario no existe"
-                    });
+
+                    req.user = null;
+                    return next();
                 }
 
                 req.user = usuario;
@@ -30,9 +30,8 @@ export const verificarToken = async (req, res, next) => {
                     error.name !== "TokenExpiredError"
                 ) {
 
-                    return res.status(401).json({
-                        message: "Token inválido"
-                    });
+                    req.user = null;
+                    return next();
                 }
 
                 console.log(
@@ -41,83 +40,96 @@ export const verificarToken = async (req, res, next) => {
             }
         }
 
-        const refreshToken = req.cookies.refreshToken;
+        const refreshToken =
+            req.cookies.refreshToken;
 
         if (!refreshToken) {
-            return res.status(401).json({
-                message: "No autorizado"
-            });
+
+            req.user = null;
+            return next();
         }
 
-        const decodedRefresh = jwt.verify(
-            refreshToken,
-            process.env.JWT_REFRESH_SECRET
-        );
+        try {
 
-        const usuario = await Usuario.findById(decodedRefresh.id)
-            .populate("rol");
+            const decodedRefresh =
+                jwt.verify(
+                    refreshToken,
+                    process.env.JWT_REFRESH_SECRET
+                );
 
-        if (!usuario) {
-            return res.status(404).json({
-                message: "Usuario no existe"
-            });
-        }
+            const usuario =
+                await Usuario.findById(
+                    decodedRefresh.id
+                ).populate("rol");
 
-        if (
-            usuario.refreshToken !== refreshToken
-        ) {
+            if (!usuario) {
 
-            return res.status(401).json({
-                message:
-                    "Refresh token inválido"
-            });
-        }
+                req.user = null;
+                return next();
+            }
 
-        const newAccessToken =
-            createAccessToken({
-                id: usuario._id
-            });
+            if (
+                usuario.refreshToken !==
+                refreshToken
+            ) {
 
-        const newRefreshToken =
-            createRefreshToken({
-                id: usuario._id
-            });
+                req.user = null;
+                return next();
+            }
 
-        usuario.refreshToken =
-            newRefreshToken;
+            const newAccessToken =
+                createAccessToken({
+                    id: usuario._id
+                });
 
-        await usuario.save();
+            const newRefreshToken =
+                createRefreshToken({
+                    id: usuario._id
+                });
 
-        res.cookie("token", newAccessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 15 * 60 * 1000
-        });
+            usuario.refreshToken =
+                newRefreshToken;
 
-        res.cookie(
-            "refreshToken",
-            newRefreshToken,
-            {
+            await usuario.save();
+
+            res.cookie("token", newAccessToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
-                maxAge:
-                    7 *
-                    24 *
-                    60 *
-                    60 *
-                    1000
-            }
-        );
+                maxAge: 15 * 60 * 1000
+            });
 
-        req.user = usuario;
-        next();
+            res.cookie(
+                "refreshToken",
+                newRefreshToken,
+                {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                    maxAge:
+                        7 *
+                        24 *
+                        60 *
+                        60 *
+                        1000
+                }
+            );
 
-    } catch (error) {
-        return res.status(401).json({
-            message: "Refresh token inválido o expirado"
-        });
+            req.user =
+                usuario;
+
+            return next();
+
+        } catch {
+
+            req.user = null;
+            return next();
+        }
+
+    } catch {
+
+        req.user = null;
+        return next();
     }
 };
 
