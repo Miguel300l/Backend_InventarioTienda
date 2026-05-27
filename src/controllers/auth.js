@@ -362,6 +362,12 @@ export const me = async (req, res) => {
 
     try {
 
+        if (!req.user) {
+            return res.json({
+                user: null
+            });
+        }
+
         return res.json({
             user: {
                 id: req.user._id,
