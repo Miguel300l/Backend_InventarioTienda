@@ -4,132 +4,270 @@ import { createAccessToken, createRefreshToken } from "../libs/jwt.js";
 import Role from "../models/Roles.js";
 
 export const signUp = async (req, res) => {
-    const { nombre, correo, password } = req.body;
+
+    const {
+        nombre,
+        correo,
+        password
+    } = req.body;
 
     try {
-        const hashedPassword = await Usuario.hasPassword(password);
 
-        const roleUser = await Role.findOne({ nombre: "usuario" });
+        const hashedPassword =
+            await Usuario.hasPassword(
+                password
+            );
 
-        const newUsuario = new Usuario({
-            nombre,
-            correo,
-            password: hashedPassword,
-            rol: [roleUser._id]
-        });
+        const roleUser =
+            await Role.findOne({
+                nombre:
+                    "usuario"
+            });
 
-        const savedUser = await newUsuario.save();
+        const newUsuario =
+            new Usuario({
+                nombre,
+                correo,
+                password:
+                    hashedPassword,
+                rol: [
+                    roleUser._id
+                ]
+            });
 
-        const accessToken = createAccessToken({ id: savedUser._id });
-        const refreshToken = createRefreshToken({ id: savedUser._id });
+        const savedUser =
+            await newUsuario.save();
+
+        const accessToken =
+            createAccessToken({
+                id:
+                    savedUser._id
+            });
+
+        const refreshToken =
+            createRefreshToken({
+                id:
+                    savedUser._id
+            });
 
         savedUser.refreshToken =
             refreshToken;
 
         await savedUser.save();
 
-        res.cookie("token", accessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 15 * 60 * 1000
-        });
-
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
-        return res.status(201).json({
-            message: "Usuario creado",
-            user: {
-                id: savedUser._id,
-                nombre: savedUser.nombre,
-                correo: savedUser.correo
+        res.cookie(
+            "token",
+            accessToken,
+            {
+                httpOnly: true,
+                secure: true,
+                sameSite:
+                    "none",
+                maxAge:
+                    15 *
+                    60 *
+                    1000
             }
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            message: "Error al registrar usuario",
-            error: error.message
-        });
-    }
-};
-
-export const signin = async (req, res) => {
-    const { correo, password } = req.body;
-
-    try {
-        const userFound = await Usuario.findOne({ correo }).populate("rol");
-
-        if (!userFound) {
-            return res.status(404).json({
-                message: "Usuario no existe"
-            });
-        }
-
-        const isMatch = await Usuario.validatePassword(
-            password,
-            userFound.password
         );
 
-        if (!isMatch) {
-            return res.status(401).json({
-                message: "Contraseña incorrecta"
-            });
-        }
-
-        const roles = userFound.rol.map(r => r.nombre);
-
-        const esEstilista = roles.includes("estilista");
-
-        if (esEstilista && userFound.estado !== "aprobado") {
-            return res.status(403).json({
-                message: "Pendiente de aprobación"
-            });
-        }
-
-        const accessToken = createAccessToken({ id: userFound._id });
-        const refreshToken = createRefreshToken({ id: userFound._id });
-
-        userFound.refreshToken = refreshToken;
-
-        await userFound.save();
-
-        res.cookie("token", accessToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 15 * 60 * 1000
-        });
-
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
-        return res.json({
-            message: "Login exitoso",
-            user: {
-                id: userFound._id,
-                nombre: userFound.nombre,
-                correo: userFound.correo,
-                rol: userFound.rol
+        res.cookie(
+            "refreshToken",
+            refreshToken,
+            {
+                httpOnly: true,
+                secure: true,
+                sameSite:
+                    "none",
+                maxAge:
+                    7 *
+                    24 *
+                    60 *
+                    60 *
+                    1000
             }
-        });
+        );
 
-    } catch (error) {
-        return res.status(500).json({
-            message: "Error en login",
-            error: error.message
-        });
+        return res
+            .status(201)
+            .json({
+                message:
+                    "Usuario creado",
+                user: {
+                    id:
+                        savedUser._id,
+                    nombre:
+                        savedUser.nombre,
+                    correo:
+                        savedUser.correo
+                }
+            });
+
+    } catch (
+    error
+    ) {
+
+        return res
+            .status(500)
+            .json({
+                message:
+                    "Error al registrar usuario",
+                error:
+                    error.message
+            });
     }
 };
+
+export const signin =
+    async (
+        req,
+        res
+    ) => {
+
+        const {
+            correo,
+            password
+        } = req.body;
+
+        try {
+
+            const userFound =
+                await Usuario
+                    .findOne({
+                        correo
+                    })
+                    .populate(
+                        "rol"
+                    );
+
+            if (
+                !userFound
+            ) {
+
+                return res
+                    .status(
+                        404
+                    )
+                    .json({
+                        message:
+                            "Usuario no existe"
+                    });
+            }
+
+            const isMatch =
+                await Usuario
+                    .validatePassword(
+                        password,
+                        userFound.password
+                    );
+
+            if (
+                !isMatch
+            ) {
+
+                return res
+                    .status(
+                        401
+                    )
+                    .json({
+                        message:
+                            "Contraseña incorrecta"
+                    });
+            }
+
+            const roles =
+                userFound.rol.map(
+                    r =>
+                        r.nombre
+                );
+
+            const esEstilista =
+                roles.includes(
+                    "estilista"
+                );
+
+            if (
+                esEstilista &&
+                userFound.estado !==
+                "aprobado"
+            ) {
+
+                return res
+                    .status(
+                        403
+                    )
+                    .json({
+                        message:
+                            "Pendiente de aprobación"
+                    });
+            }
+
+            userFound.refreshToken =
+                null;
+
+            await userFound.save();
+
+            const accessToken =
+                createAccessToken({
+                    id:
+                        userFound._id
+                });
+
+            const refreshToken =
+                createRefreshToken({
+                    id:
+                        userFound._id
+                });
+
+            userFound.refreshToken =
+                refreshToken;
+
+            await userFound.save();
+
+            res.cookie(
+                "token",
+                accessToken,
+                {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite:
+                        "none",
+                    maxAge:
+                        15 *
+                        60 *
+                        1000
+                }
+            );
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
+            return res
+                .json({
+                    message:
+                        "Login exitoso",
+                    user: {
+                        id:
+                            userFound._id,
+                        nombre:
+                            userFound.nombre,
+                        correo:
+                            userFound.correo,
+                        rol:
+                            userFound.rol
+                    }
+                });
+
+        } catch (error) {
+            return res.status(500).json({
+                message: "Error en login",
+                error: error.message
+            });
+        }
+    };
 
 export const logout = async (req, res) => {
     try {
